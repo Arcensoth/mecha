@@ -75,6 +75,7 @@ __all__ = [
 
 import re
 from dataclasses import dataclass, fields
+from functools import partial
 from itertools import permutations
 from typing import (
     Any,
@@ -125,6 +126,9 @@ COLORS: Tuple[str, ...] = (
     "yellow",
     "white",
 )
+
+
+CoordinateType = Literal["absolute", "relative", "local"]
 
 
 @dataclass(frozen=True)
@@ -269,15 +273,17 @@ class AstUUID(AstNode):
 class AstCoordinate(AstNode):
     """Coordinate ast node."""
 
-    type: Literal["absolute", "relative", "local"] = "absolute"
+    type: CoordinateType = "absolute"
     value: Union[int, float] = required_field()
 
     parser = "coordinate"
 
     @classmethod
-    def from_value(cls, value: Any) -> "AstCoordinate":
+    def from_value(
+        cls, value: Any, default_type: CoordinateType = "absolute"
+    ) -> "AstCoordinate":
         """Return a coordinate node from the given value."""
-        type = "absolute"
+        type = default_type
         if isinstance(value, str):
             if value.startswith("~"):
                 type = "relative"
@@ -301,9 +307,12 @@ class AstVector2(AstNode):
     @classmethod
     def from_value(cls, value: Any) -> "AstVector2":
         """Return a vector 2 node from the given value."""
+        mapper = AstCoordinate.from_value
+        if isinstance(value, list):
+            mapper = partial(AstCoordinate.from_value, default_type="relative")
         if isinstance(value, str):
             value = value.split()
-        x, y = map(AstCoordinate.from_value, value)
+        x, y = map(mapper, value)  # type: ignore
         return AstVector2(x=x, y=y)
 
 
@@ -318,9 +327,12 @@ class AstVector3(AstNode):
     @classmethod
     def from_value(cls, value: Any) -> "AstVector3":
         """Return a vector 3 node from the given value."""
+        mapper = AstCoordinate.from_value
+        if isinstance(value, list):
+            mapper = partial(AstCoordinate.from_value, default_type="relative")
         if isinstance(value, str):
             value = value.split()
-        x, y, z = map(AstCoordinate.from_value, value)
+        x, y, z = map(mapper, value)  # type: ignore
         return AstVector3(x=x, y=y, z=z)
 
 

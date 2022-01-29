@@ -114,6 +114,8 @@ setblock 1 2 3 stone
 setblock 1 2 3 stone
 execute if block ^ ^1 ^ #planks run say 42
 execute if block ~ ~ ~ #planks run say 42
+setblock 4 5 6 dirt
+setblock ~7 ~8 ~9 grass
 say {'foo': 1, 'bar': 2, 'thing': 42}
 execute if score @s thingy matches 0..3 run function demo:foo/small_tree/0_3
 execute if score @s thingy matches 4..7 run function demo:foo/small_tree/4_7

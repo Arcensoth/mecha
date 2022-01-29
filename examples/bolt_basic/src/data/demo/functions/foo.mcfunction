@@ -177,6 +177,10 @@ def try_coordinates():
     a = 1
     if block ^ f"^{a}" ^ #planks say 42
     if block ("~", "~", "~") #planks say 42
+    p1 = (4, 5, 6)
+    setblock p1 dirt
+    p2 = [7, 8, 9]
+    setblock p2 grass
 
 try_coordinates()
 
